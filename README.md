@@ -12,3 +12,5 @@ NetIO netIO = new Builder("hostname", port).setUsername("username").setPassword(
 // Get status of port 1
 netIO.getPortStatus(1);
 ```
+
+[![Build Status](https://travis-ci.org/crea-doo/netio.svg?branch=master)](https://travis-ci.org/crea-doo/netio)
