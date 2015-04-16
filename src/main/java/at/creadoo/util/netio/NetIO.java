@@ -53,7 +53,7 @@ public class NetIO {
 
 	protected State state;
 
-	protected NetIO(final Builder builder) {
+	protected NetIO(final NetIOBuilder builder) {
 		this.state = State.DISCONNECTED;
 		this.host = builder.host.trim();
 		this.port = builder.port;

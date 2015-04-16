@@ -15,7 +15,7 @@
  */
 package at.creadoo.util.netio;
 
-public class Builder {
+public class NetIOBuilder {
 
 	protected String host;
 
@@ -25,17 +25,17 @@ public class Builder {
 
 	protected String pass;
 
-	public Builder(final String host, final Integer port) {
+	public NetIOBuilder(final String host, final Integer port) {
 		this.host = host;
 		this.port = port;
 	}
 
-	public Builder setUsername(final String user) {
+	public NetIOBuilder setUsername(final String user) {
 		this.user = user;
 		return this;
 	}
 
-	public Builder setPassword(final String pass) {
+	public NetIOBuilder setPassword(final String pass) {
 		this.pass = pass;
 		return this;
 	}

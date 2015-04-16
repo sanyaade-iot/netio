@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import at.creadoo.util.netio.Builder;
+import at.creadoo.util.netio.NetIOBuilder;
 import at.creadoo.util.netio.NetIOException;
 import at.creadoo.util.netio.NetIO;
 import at.creadoo.util.netio.State;
@@ -30,7 +30,7 @@ public class NetIOTest {
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		netIO = new Builder("hostname", 1234).setUsername("username").setPassword("password").build();
+		netIO = new NetIOBuilder("hostname", 1234).setUsername("username").setPassword("password").build();
 		netIO.writer = writer;
 		netIO.reader = reader;
 	}
