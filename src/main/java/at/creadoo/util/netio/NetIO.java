@@ -35,13 +35,13 @@ public class NetIO {
 
 	private static final Logger log = Logger.getLogger(NetIO.class);
 
-	private String host;
+	private final String host;
 
-	private Integer port;
+	private final Integer port;
 
-	private String user;
+	private final String user;
 
-	private String pass;
+	private final String pass;
 
 	protected Socket socket;
 
@@ -62,12 +62,10 @@ public class NetIO {
 	}
 
 	public Boolean isConnected() {
-		log.trace("isConnected()");
-		return isAuthorized() || State.CONNECTED.equals(state);
+		return State.CONNECTED.equals(state) || isAuthorized();
 	}
 
 	public Boolean isAuthorized() {
-		log.trace("isAuthorized()");
 		return State.AUTHORIZED.equals(state);
 	}
 	
@@ -155,8 +153,22 @@ public class NetIO {
 			final String response = command("reboot");
 			final ResponseCode responseCode = getResponseCode(response);
 			if (responseCode.equals(ResponseCode.HELLO) || responseCode.equals(ResponseCode.REBOOTING)) {
+				this.state = State.DISCONNECTED;
 				return true;
 			}
+		}
+		return false;
+	}
+
+	/**
+	 * Disconnect from the device
+	 */
+	public Boolean disconnect() {
+		if (isConnected()) {
+			this.state = State.DISCONNECTED;
+			this.hash = "";
+			
+			return true;
 		}
 		return false;
 	}
@@ -207,6 +219,20 @@ public class NetIO {
 			return isResponseCodeOk(command("port " + port + " " + PortStatus.DEACTIVATED.getValue()));
 		}
 		return false;
+	}
+
+	/**
+	 * Enable all ports
+	 */
+	public Boolean setPortsOn() throws NetIOException {
+		return isResponseCodeOk(command("port list 1111"));
+	}
+
+	/**
+	 * Disable all ports
+	 */
+	public Boolean setPortsOff() throws NetIOException {
+		return isResponseCodeOk(command("port list 0000"));
 	}
 
 	/**
@@ -404,7 +430,7 @@ public class NetIO {
 			writer.flush();
 			final String response = reader.readLine();
 			log.debug("<-- " + response);
-			if (response == null || !response.startsWith("250")) {
+			if (!isResponseCodeOk(response)) {
 				throw new IOException(response);
 			}
 			
@@ -429,7 +455,7 @@ public class NetIO {
 			final String response = reader.readLine();
 			log.debug("<-- " + response);
 			
-			if (isResponseCodeOk(response)) {
+			if (checkResponseCode(response, ResponseCode.HELLO)) {
 				hash = response.substring(10, 18).trim();
 				state = State.CONNECTED;
 			}

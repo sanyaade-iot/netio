@@ -17,26 +17,56 @@ package at.creadoo.util.netio;
 
 public class NetIOBuilder {
 
-	protected String host;
+	protected String host = "";
 
-	protected Integer port;
+	protected Integer port = 1234;
 
-	protected String user;
+	protected String user = "admin";
 
-	protected String pass;
+	protected String pass = "admin";
 
+	public NetIOBuilder() {
+		this(null, null);
+	}
+	
+	public NetIOBuilder(final String host) {
+		this(host, null);
+	}
+	
 	public NetIOBuilder(final String host, final Integer port) {
-		this.host = host;
-		this.port = port;
+		if (host != null) {
+			this.host = host;
+		}
+		if (port != null) {
+			this.port = port;
+		}
+	}
+
+	public NetIOBuilder setHost(final String host) {
+		if (host != null) {
+			this.host = host;
+		}
+		return this;
+	}
+
+	public NetIOBuilder setPort(final Integer port) {
+		if (port != null) {
+			this.port = port;
+		}
+		return this;
 	}
 
 	public NetIOBuilder setUsername(final String user) {
-		this.user = user;
+		if (user != null) {
+			this.user = user;
+		}
 		return this;
 	}
 
 	public NetIOBuilder setPassword(final String pass) {
-		this.pass = pass;
+		if (pass != null) {
+			this.pass = pass;
+		}
 		return this;
 	}
 
