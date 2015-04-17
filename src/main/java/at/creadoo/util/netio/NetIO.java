@@ -449,6 +449,13 @@ public class NetIO {
 
 	private void connect() throws NetIOException {
 		try {
+			if (host == null || host.isEmpty()) {
+				throw new NetIOException("Can't connect to invalid host");
+			}
+			if (port == null) {
+				throw new NetIOException("Can't connect to host with invalid port");
+			}
+			
 			socket = new Socket(host, port);
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), Constants.DEFAULT_CHARSET));
 			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Constants.DEFAULT_CHARSET));
