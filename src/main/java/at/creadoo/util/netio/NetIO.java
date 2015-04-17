@@ -29,29 +29,26 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 public class NetIO {
 
 	private static final Logger log = Logger.getLogger(NetIO.class);
 
+	private static final Integer MAX_RETRIES = 5;
+	
 	private final String host;
-
 	private final Integer port;
-
 	private final String user;
-
 	private final String pass;
 
 	protected Socket socket;
-
 	protected BufferedReader reader;
-
 	protected BufferedWriter writer;
 
-	private String hash;
-
 	protected State state;
+	private String hash;
 
 	protected NetIO(final NetIOBuilder builder) {
 		this.state = State.DISCONNECTED;
@@ -139,13 +136,6 @@ public class NetIO {
 	}
 
 	/**
-	 * Tell to keep the connection
-	 */
-	public void noop() throws NetIOException {
-		command("noop");
-	}
-
-	/**
 	 * Reboot the device
 	 */
 	public Boolean reboot() throws NetIOException {
@@ -164,9 +154,16 @@ public class NetIO {
 	 * Disconnect from the device
 	 */
 	public Boolean disconnect() {
+		log.debug("Disconnect");
 		if (isConnected()) {
 			this.state = State.DISCONNECTED;
 			this.hash = "";
+			IOUtils.closeQuietly(this.socket);
+			this.socket = null;
+			IOUtils.closeQuietly(this.reader);
+			this.reader = null;
+			IOUtils.closeQuietly(this.writer);
+			this.writer = null;
 			
 			return true;
 		}
@@ -206,7 +203,7 @@ public class NetIO {
 	 */
 	public Boolean setPortOn(final Integer port) throws NetIOException {
 		if (isPortValid(port) && isPortOff(port)) {
-			return isResponseCodeOk("port " + port + " " + PortStatus.ACTIVATED.getValue());
+			return isResponseCodeOk(command("port " + port + " " + PortStatus.ACTIVATED.getValue()));
 		}
 		return false;
 	}
@@ -394,6 +391,10 @@ public class NetIO {
 	 * Sends a command to the device
 	 */
 	protected String command(final String command) throws NetIOException {
+		return command(command, 0);
+	}
+	
+	protected String command(final String command, final Integer retryCount) throws NetIOException {
 		try {
 			if (!isAuthorized() && !authorize()) {
 				final String error = "Unable to authorize";
@@ -408,12 +409,12 @@ public class NetIO {
 			log.debug("<-- " + response);
 			return response;
 		} catch (IOException ex) {
-			try {
-				socket.close();
-			} catch (IOException e1) {
-				log.error("Error closing Socket on Exception (" + ex.getMessage() + ")", e1);
+			disconnect();
+			if (retryCount < MAX_RETRIES) {
+				return command(command, retryCount + 1);
+			} else {
+				throw new NetIOException("Error while sending command", ex);
 			}
-			throw new NetIOException("Error while sending command", ex);
 		}
 	}
 
