@@ -4,7 +4,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>at.crea-doo.util</groupId>
+	<groupId>at.crea-doo.util.netio</groupId>
 	<artifactId>netio</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
